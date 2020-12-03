@@ -1,10 +1,15 @@
 use std::collections::HashSet;
 use std::fs;
+use std::ops::BitXor;
+
 
 fn main() {
     let input_data = get_input_data("input.txt");
     let part1_result = solve_part1(&input_data);
     println!("part1: {}", part1_result);
+
+    let part2_result = solve_part2(&input_data);
+    println!("part1: {}", part2_result);
 }
 
 fn get_input_data(input_file_mame: &str) -> HashSet<String> {
@@ -29,7 +34,29 @@ fn solve_part1(input_data: &HashSet<String>) -> u32 {
             result += 1;
         }
     }
-    
+
+    result
+}
+
+fn solve_part2(input_data: &HashSet<String>) -> u32 {
+    let mut result = 0;
+    for line in input_data {
+        let splitted_line: Vec<&str> = line.split_whitespace().collect();
+        let (fist_pos, second_pos) = parse_letter_count(splitted_line[0]);
+        let required_character = parse_required_character(splitted_line[1]);
+        let word: Vec<char> = splitted_line[2].chars().collect();
+        let fixed_first_pos = (fist_pos - 1) as usize;
+        let fixed_second_pos = (second_pos - 1) as usize;
+
+        if word.len() <= fixed_second_pos || word.len() <= fixed_first_pos {
+            continue;
+        }
+
+        if (word[fixed_first_pos] == required_character) ^ (word[fixed_second_pos] == required_character) {
+            result += 1;
+        }
+    }
+
     result
 }
 
@@ -54,4 +81,17 @@ fn solve_part1_works() {
     let result = solve_part1(&input_data);
 
     assert_eq!(result, 2);
+}
+
+#[test]
+fn solve_part2_works() {
+    let input_data: HashSet<String> = ["1-3 a: abcde", "1-3 b: cdefg", "2-9 c: ccccccccc"]
+        .iter()
+        .cloned()
+        .map(String::from)
+        .collect();
+
+    let result = solve_part2(&input_data);
+
+    assert_eq!(result, 1);
 }
